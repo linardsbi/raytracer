@@ -47,7 +47,7 @@ private:
         constexpr auto lce_m = 714025;
 
         state = ((lce_a * state + lce_c) % lce_m);
-        return state;
+        return static_cast<double>(state);
     }
 
     constexpr double uniform_distribution_n() {
@@ -57,7 +57,7 @@ private:
     }
 
     constexpr Num get_number(Num min, Num max) {
-        return static_cast<Num>(uniform_distribution_n() * (max - min) + min);
+        return static_cast<Num>(uniform_distribution_n() * (double)(max - min) + (double)min);
     }
 
     template <std::size_t sz>

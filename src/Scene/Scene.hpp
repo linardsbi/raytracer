@@ -13,6 +13,11 @@ public:
     using obj_ptr_t = std::shared_ptr<Object>;
     using obj_storage_t = std::vector<obj_ptr_t>;
 
+    Scene() = default;
+    Scene(const obj_ptr_t& object) {
+        add_object(object);
+    }
+
     void add_object(const obj_ptr_t &);
 
     void clear() {
@@ -29,5 +34,5 @@ public:
     }
 
 private:
-    obj_storage_t m_objects;
+    obj_storage_t m_objects{};
 };

@@ -1,8 +1,10 @@
 #include <iostream>
 #include <execution>
+#include <opencv2/highgui/highgui.hpp>
+
 
 #include "./src/Util/Common.hpp"
-#include "./src/Util/Color.hpp"
+//#include "./src/Util/Color.hpp"
 #include "./src/Scene/Scene.hpp"
 #include "src/Scene/Object/Sphere.hpp"
 #include "src/Scene/Camera.hpp"
@@ -11,6 +13,8 @@
 #include "src/Scene/Material/Dielectric.hpp"
 #include "src/Scene/Texture/Checker.hpp"
 #include "src/Scene/Texture/Noise.hpp"
+#include "src/Scene/Texture/Image.hpp"
+#include "src/Util/Image.hpp"
 
 FLATTEN inline Color ray_color(const Ray &r, const Scene &world, const int depth) {
     if (depth <= 0) {
@@ -93,20 +97,28 @@ Scene two_spheres() {
 Scene two_perlin_spheres() {
     Scene objects;
 
-    auto pertext = std::make_shared<Noise>();
+    auto pertext = std::make_shared<Noise>(4);
     objects.add_object(std::make_shared<StaticSphere>(Point3{0,-1000,0}, 1000, std::make_shared<Lambertian>(pertext)));
     objects.add_object(std::make_shared<StaticSphere>(Point3{0, 2, 0}, 2, std::make_shared<Lambertian>(pertext)));
 
     return objects;
 }
 
+Scene earth() {
+    auto earth_texture = std::make_shared<Image>("../img/earthmap.jpg");
+    auto earth_surface = std::make_shared<Lambertian>(earth_texture);
+    auto globe = std::make_shared<StaticSphere>(Point3{0,0,0}, 2, earth_surface);
+
+    return {globe};
+}
+
 template<std::size_t Width, std::size_t Height> constexpr auto get_indicies()
 {
-    std::array<std::pair<std::size_t, std::size_t>, Width * Height> indicies{};
-    std::generate(begin(indicies), end(indicies), [w = 0U, h = Height - 1]() mutable {
+    std::array<std::pair<std::uint16_t, std::uint16_t>, Width * Height - 1> indicies;
+    std::generate(indicies.begin(), indicies.end(), [w = 0U, h = 0U]() mutable {
         if (w == Width - 1) {
-            --h;
-            w = 0;
+            ++h;
+            w = 0U;
         } else {
             ++w;
         }
@@ -132,7 +144,8 @@ int main() {
 
 //    static const auto world = random_scene();
 //    static const auto world = two_spheres();
-    static const auto world = two_perlin_spheres();
+//    static const auto world = two_perlin_spheres();
+    static const auto world = earth();
 
     // Camera
 
@@ -147,16 +160,23 @@ int main() {
 
     // Render
 
-    std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
-    std::for_each(std::execution::par_unseq, index.begin(), index.end(), [cam](const auto item) {
+    Util::Image img(image_width, image_height);
+
+    std::for_each(std::execution::par_unseq, index.begin(), index.end(), [&cam, &img](const auto item) {
         Color pixel{0.0,0.0,0.0};
+        const auto x = item.first;
+        const auto y = item.second;
 
         for (auto s = 0U; s < samples_per_pixel; ++s) {
-            const auto u = (static_cast<double>(item.first) + random<double>()) / (image_width - 1);
-            const auto v = (static_cast<double>(item.second) + random<double>()) / (image_height - 1);
+            const auto u = (static_cast<double>(x) + random<double>()) / (image_width - 1);
+            const auto v = (static_cast<double>(y) + random<double>()) / (image_height - 1);
             const auto r = cam.create_ray(u, v);
             pixel += ray_color(r, world, max_depth);
         }
-        write_color(std::cout, pixel, samples_per_pixel);
+
+        img.write_pixel(pixel, x, y, samples_per_pixel);
     });
+
+    cv::imshow("Raytraced image", img.cv_image());
+    cv::waitKey(0);
 }

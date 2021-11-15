@@ -48,12 +48,20 @@ public:
     }
 
     inline constexpr static Vector random_point(FP_TYPE min, FP_TYPE max) {
-        const auto ranged_random = [min, max]() {
-            return random<double>(min, max);
-        };
-
         std::array<FP_TYPE, N_DIMENSIONS> point{};
-        std::generate(point.begin(), point.end(), ranged_random);
+
+        if (std::is_constant_evaluated()) {
+            const auto ranged_random = [min, max, rng = RandomGenerator<FP_TYPE>{}]() mutable {
+                return rng(min, max);
+            };
+            std::generate(point.begin(), point.end(), ranged_random);
+        } else {
+            const auto ranged_random = [min, max]() {
+                return random<double>(min, max);
+            };
+            std::generate(point.begin(), point.end(), ranged_random);
+        }
+
         return {point};
     }
 
@@ -77,7 +85,7 @@ public:
     }
 
     constexpr Vector &operator*=(const FP_TYPE t) {
-        constexpr auto multiply_dim = [t](const auto dim) {
+        const auto multiply_dim = [t](const auto dim) {
             return dim * t;
         };
         std::transform(e.cbegin(), e.cend(), e.begin(), multiply_dim);

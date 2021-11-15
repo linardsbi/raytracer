@@ -8,13 +8,9 @@
 
 template <>
 double random(const double min, const double max) {
-    static std::uniform_real_distribution<double> distribution(min, max);
+    std::uniform_real_distribution<double> distribution(min, max);
     static std::random_device d;
-    static std::mt19937 generator{d()};
-
-    if (min != distribution.min() || max != distribution.max()) {
-        distribution = std::uniform_real_distribution<double>{min, max};
-    }
+    static thread_local std::mt19937 generator{d()};
 
     return distribution(generator);
 }
