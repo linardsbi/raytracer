@@ -115,9 +115,9 @@ Scene earth() {
 template<std::size_t Width, std::size_t Height> constexpr auto get_indicies()
 {
     std::array<std::pair<std::uint16_t, std::uint16_t>, Width * Height - 1> indicies;
-    std::generate(indicies.begin(), indicies.end(), [w = 0U, h = 0U]() mutable {
+    std::generate(indicies.begin(), indicies.end(), [w = 0U, h = Height - 1]() mutable {
         if (w == Width - 1) {
-            ++h;
+            --h;
             w = 0U;
         } else {
             ++w;
@@ -160,12 +160,12 @@ int main() {
 
     // Render
 
-    Util::Image img(image_width, image_height);
-
-    std::for_each(std::execution::par_unseq, index.begin(), index.end(), [&cam, &img](const auto item) {
+    Util::Image img(image_width, image_height, samples_per_pixel);
+    const auto start = std::chrono::system_clock::now();
+    std::transform(std::execution::par_unseq, index.begin(), index.end(), img.cv_image_begin(), [&cam, &img](const auto& i) {
         Color pixel{0.0,0.0,0.0};
-        const auto x = item.first;
-        const auto y = item.second;
+        const auto x = i.first;
+        const auto y = i.second;
 
         for (auto s = 0U; s < samples_per_pixel; ++s) {
             const auto u = (static_cast<double>(x) + random<double>()) / (image_width - 1);
@@ -173,9 +173,12 @@ int main() {
             const auto r = cam.create_ray(u, v);
             pixel += ray_color(r, world, max_depth);
         }
-
-        img.write_pixel(pixel, x, y, samples_per_pixel);
+        const auto normalized = img.normalize_pixel(to_BGR(pixel));
+        return cv::Vec3b{normalized[0], normalized[1], normalized[2]};
     });
+
+    const auto total_time = std::chrono::duration<double>(std::chrono::system_clock::now() - start).count();
+    std::cout << "Finished rendering in " << total_time << "s\n";
 
     cv::imshow("Raytraced image", img.cv_image());
     cv::waitKey(0);

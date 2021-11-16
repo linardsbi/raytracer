@@ -11,7 +11,7 @@
 
 #include "../Util/Common.hpp"
 
-template<std::floating_point FP_TYPE, std::size_t N_DIMENSIONS = 1>
+template<Number FP_TYPE, std::size_t N_DIMENSIONS = 1>
 class Vector {
 public:
     using value_type = FP_TYPE;
@@ -190,6 +190,12 @@ public:
 using Vec3 = Vector<double, 3>;
 using Point3 = Vec3;
 using Color = Vec3;
+using ColorB = Vector<std::uint8_t, 3>;
+
+inline constexpr Color to_BGR(auto pixel) {
+    std::swap(pixel[0], pixel[2]);
+    return pixel;
+}
 
 enum class Axis {
     X,
