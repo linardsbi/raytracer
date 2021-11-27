@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <complex>
 #include <cassert>
+#include <ranges>
 
 #include "../Util/Common.hpp"
 
@@ -63,6 +64,10 @@ public:
         }
 
         return {point};
+    }
+
+    constexpr bool operator==(const Vector &rhs) const {
+        return std::ranges::equal(e, rhs.e);
     }
 
     constexpr Vector operator-() const {

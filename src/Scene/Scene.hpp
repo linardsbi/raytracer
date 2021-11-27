@@ -4,35 +4,43 @@
 
 #pragma once
 
-#include <vector>
-#include <memory>
 #include "Object/Object.hpp"
 
 class Scene {
 public:
-    using obj_ptr_t = std::shared_ptr<Object>;
-    using obj_storage_t = std::vector<obj_ptr_t>;
+    using ObjPtr_t = std::shared_ptr<Object>;
+    using ObjRecord_t = std::vector<ObjPtr_t>;
 
     Scene() = default;
-    Scene(const obj_ptr_t& object) {
+
+    Scene(const ObjPtr_t &object) {
         add_object(object);
     }
 
-    void add_object(const obj_ptr_t &);
+    void add_object(const ObjPtr_t &);
+
+    constexpr void set_background(const Color &background) {
+        m_background = background;
+    }
 
     void clear() {
         m_objects.clear();
     }
 
-    bool visit_objects(const Ray& r, double t_min, double t_max, HitRecord& rec) const;
+    bool visit_objects(const Ray &r, double t_min, double t_max, HitRecord &rec) const;
 
     bool bounding_box(
-            double time0, double time1, AABoundingBox& output_box) const;
+            double time0, double time1, AABoundingBox &output_box) const;
 
-    [[nodiscard]] constexpr const obj_storage_t& objects() const {
+    [[nodiscard]] constexpr const ObjRecord_t &objects() const {
         return m_objects;
     }
 
+    [[nodiscard]] constexpr Color background() const {
+        return m_background;
+    }
+
 private:
-    obj_storage_t m_objects{};
+    ObjRecord_t m_objects{};
+    Color m_background{0.70, 0.80, 1.00};
 };

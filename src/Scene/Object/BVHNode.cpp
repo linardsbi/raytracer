@@ -5,7 +5,7 @@
 #include <iostream>
 #include "BVHNode.hpp"
 
-bool BVHNode::hit(const Ray &r, double t_min, double t_max, HitRecord &rec) const {
+bool BVHNode::check_hit(const Ray &r, double t_min, double t_max, HitRecord &rec) const {
     if (!m_box.hit(r, t_min, t_max)) {
         return false;
     }
@@ -16,7 +16,7 @@ bool BVHNode::hit(const Ray &r, double t_min, double t_max, HitRecord &rec) cons
     return hit_left || hit_right;
 }
 
-BVHNode::BVHNode(const Scene::obj_storage_t &src_objects, std::size_t start, std::size_t end, double time0,
+BVHNode::BVHNode(const Scene::ObjRecord_t &src_objects, std::size_t start, std::size_t end, double time0,
                  double time1) {
     auto objects = src_objects; // Create a modifiable array of the source scene objects
 
@@ -47,8 +47,8 @@ BVHNode::BVHNode(const Scene::obj_storage_t &src_objects, std::size_t start, std
         m_right = make_shared<BVHNode>(objects, mid, end, time0, time1);
     }
 
-    const auto box_left = m_left->bounding_box(time0, time1);
-    const auto box_right = m_right->bounding_box(time0, time1);
+    const auto box_left = m_left->get_bounding_box(time0, time1);
+    const auto box_right = m_right->get_bounding_box(time0, time1);
 
     if (!box_left || !box_right) {
         std::cerr << "No bounding box in BVHNode constructor.\n";

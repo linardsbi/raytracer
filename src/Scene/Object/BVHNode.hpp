@@ -4,9 +4,7 @@
 
 #pragma once
 
-#include <math.h>
-
-#include <memory>
+#include <cmath>
 
 #include "Object.hpp"
 #include "../Scene.hpp"
@@ -19,10 +17,10 @@ public:
             : BVHNode(list.objects(), 0UL, list.objects().size(), time0, time1) {}
 
     BVHNode(
-            const Scene::obj_storage_t &src_objects,
+            const Scene::ObjRecord_t &src_objects,
             std::size_t start, std::size_t end, double time0, double time1);
 
-    bool hit(
+    bool check_hit(
             const Ray &r, double t_min, double t_max, HitRecord &rec) const override;
 
     [[nodiscard]] std::optional<AABoundingBox> bounding_box(double  /*time0*/, double  /*time1*/) const override {
@@ -37,8 +35,8 @@ private:
 
 template<Axis Ax>
 inline bool box_compare(const std::shared_ptr<Object> &a, const std::shared_ptr<Object> &b) {
-    const auto box_a = a->bounding_box(0, 0);
-    const auto box_b = b->bounding_box(0, 0);
+    const auto box_a = a->get_bounding_box(0, 0);
+    const auto box_b = b->get_bounding_box(0, 0);
 
     if (!box_a || !box_b) {
         std::cerr << "No bounding box in bvh_node constructor.\n";

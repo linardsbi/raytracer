@@ -5,13 +5,14 @@
 #pragma once
 
 #include <optional>
-#include "../Object/Object.hpp"
+#include <memory>
+#include "../Ray.hpp"
 
 struct ScatterResult {
-    constexpr ScatterResult(std::optional<Ray> sc, const Color& color)
-    : m_scattered(sc)
-    , m_attenuation(color)
-    {}
+    constexpr ScatterResult() = default;
+
+    constexpr ScatterResult(std::optional<Ray> sc, const Color &color)
+            : m_scattered(sc), m_attenuation(color) {}
 
     constexpr explicit operator bool() const {
         return m_scattered.has_value();
@@ -26,7 +27,7 @@ struct ScatterResult {
     }
 private:
     std::optional<Ray> m_scattered;
-    const Color m_attenuation;
+    const Color m_attenuation{};
 };
 
 struct HitRecord;
@@ -36,6 +37,10 @@ public:
     [[nodiscard]] constexpr virtual ScatterResult scatter(
             const Ray &r_in, const HitRecord &r
     ) const = 0;
+
+    [[nodiscard]] constexpr virtual Color emitted(double /*u*/, double  /*v*/, const Point3 &  /*p*/) const {
+        return {0.0, 0.0, 0.0};
+    }
 };
 
 using MaterialPtr_t = std::shared_ptr<MaterialBase>;

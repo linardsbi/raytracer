@@ -6,13 +6,15 @@ find_package(OpenCV REQUIRED)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_compile_options("-Ofast" "-g" "-Wall" "-Wextra" "-Wpedantic"
-        "-Wconversion" "-fsanitize=address,leak,undefined" "-funroll-loops"
+add_compile_options("-Ofast" "-g"
+        "-Wall" "-Wextra" "-Wpedantic" "-Wconversion"
+        "-fsanitize=address,leak,undefined"
+        "-fsplit-stack" # fixme: RayCaster::cast_ray() can cause a stack overflow, so using dynamic stack size for now
         "-fconstexpr-ops-limit=100000000" "-fconstexpr-loop-limit=1000000")
 
 set(CMAKE_EXE_LINKER_FLAGS "-fsanitize=address,leak,undefined -fno-omit-frame-pointer -flto")
 
-include_directories( ${OpenCV_INCLUDE_DIRS} )
+include_directories(${OpenCV_INCLUDE_DIRS})
 
 add_executable(untitled
         main.cpp
@@ -24,7 +26,10 @@ add_executable(untitled
         src/Scene/AABoundingBox.cpp
         src/Scene/Object/BVHNode.cpp
         src/Scene/Texture/Image.cpp
-        src/Util/Image.cpp)
+        src/Util/Image.cpp
+        src/Scene/Object/AARect.cpp
+        src/Scene/Object/Object.cpp
+        src/Scene/Object/Rotated.cpp)
 
 target_link_libraries(untitled
         fmt::fmt

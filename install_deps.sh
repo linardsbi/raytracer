@@ -1,0 +1,1 @@
+sudo pacman -Syu fmt tbb opencv hdf5 vtk pugixml

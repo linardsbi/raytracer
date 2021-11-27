@@ -22,15 +22,15 @@ public:
             Point3 cen0, Point3 cen1, double _time0, double _time1, double r, MaterialPtr_t m)
     : m_center0(cen0), m_center1(cen1), m_radius(r), m_time0(_time0), m_time1(_time1), m_material_ptr(std::move(m)) {};
 
-    bool hit(
-            const Ray& r, double t_min, double t_max, HitRecord& rec) const override {
+    bool check_hit(
+            const Ray &r, double t_min, double t_max, HitRecord &rec) const override {
         const auto oc = r.origin() - get_center(r);
 
         const std::floating_point auto a = r.direction().length_squared();
         const std::floating_point auto half_b = oc.dot(r.direction());
         const auto c = oc.length_squared() - m_radius * m_radius;
 
-        const auto discriminant = half_b*half_b - a*c;
+        const auto discriminant = half_b * half_b - a * c;
 
         if (discriminant < 0.0) {
             return false;

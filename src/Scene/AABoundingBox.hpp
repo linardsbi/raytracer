@@ -16,6 +16,11 @@ public:
 
     [[nodiscard]] constexpr Point3 max() const { return m_maximum; }
 
+    [[nodiscard]] constexpr bool is_zero_size() const {
+        return m_minimum[0] == 0.0 && m_minimum[1] == 0.0 && m_minimum[2] == 0.0
+               && m_maximum[0] == 0.0 && m_maximum[1] == 0.0 && m_maximum[2] == 0.0;
+    }
+
     [[nodiscard]] constexpr bool hit(const Ray &r, double t_min, double t_max) const {
         for (auto a = 0UL; a < 3UL; a++) {
             const auto invD = 1.0 / r.direction()[a];
