@@ -22,18 +22,17 @@ Image::Image(const std::string &filename) {
     height = m_image.rows;
 }
 
-Color Image::value(double u, double v, const Vec3 &p) const {
+Color Image::value(const Vec2 &uv, const Vec3 &p) const {
     // If we have no texture data, then return solid cyan as a debugging aid.
     if (m_image.empty()) {
         return {0, 1, 1};
     }
 
     // Clamp input texture coordinates to [0,1] x [1,0]
-    u = std::clamp(u, 0.0, 1.0);
-    v = 1.0 - std::clamp(v, 0.0, 1.0);  // Flip V to image coordinates
+    const Vec2 clamped_uv = {std::clamp(uv[0], 0.0, 1.0), 1.0 - std::clamp(uv[1], 0.0, 1.0)};
 
-    auto i = static_cast<int>(u * width);
-    auto j = static_cast<int>(v * height);
+    auto i = static_cast<int>(clamped_uv.u() * width);
+    auto j = static_cast<int>(clamped_uv.v() * height);
 
     // Clamp integer mapping, since actual coordinates should be less than 1.0
     if (i >= width) {

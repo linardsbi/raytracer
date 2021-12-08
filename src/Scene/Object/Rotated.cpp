@@ -6,7 +6,7 @@
 
 template<>
 Rotated<Axis::Y>::Rotated(std::shared_ptr<Object> &p, double angle) : m_ptr(std::move(p)) {
-    const auto radians = Common::degrees_to_radians(angle);
+    const auto radians = CE::degrees_to_radians(angle);
     sin_theta = std::sin(radians);
     cos_theta = std::cos(radians);
     const auto bounding_box = m_ptr->get_bounding_box(0.0, 1.0);

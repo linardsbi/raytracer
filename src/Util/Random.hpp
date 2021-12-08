@@ -3,19 +3,16 @@
 //
 
 #pragma once
-#include <numeric>
+
+#include "../Math/Concepts.hpp"
+
 #include <array>
 #include <cstdint>
 
-template <typename T>
-concept Number = std::is_floating_point_v<T> || std::is_integral_v<T>;
-
-constexpr static auto seed()
-{
+constexpr static auto seed() {
     std::uint64_t shifted = 0;
 
-    for( const auto c : __TIME__ )
-    {
+    for (const auto c: __TIME__) {
         shifted <<= 8U;
         shifted |= (unsigned long) c;
     }

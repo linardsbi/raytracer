@@ -9,7 +9,7 @@
 
 class DiffuseLight : public MaterialBase {
 public:
-    explicit DiffuseLight(std::shared_ptr<Texture> &a) : m_emit(std::move(a)) {}
+    explicit DiffuseLight(std::shared_ptr<Texture> a) : m_emit(std::move(a)) {}
 
     explicit DiffuseLight(const Color &c) : m_emit(std::make_shared<SolidColor>(c)) {}
 
@@ -19,8 +19,8 @@ public:
         return {};
     }
 
-    [[nodiscard]] Color emitted(double u, double v, const Point3 &p) const override {
-        return m_emit->value(u, v, p);
+    [[nodiscard]] Color emitted(const Vec2 &uv, const Point3 &p) const override {
+        return m_emit->value(uv, p);
     }
 
 private:

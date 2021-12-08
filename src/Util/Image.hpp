@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../Math/Vector.hpp"
+#include "../Util/Common.hpp"
 
 namespace Util {
     class Image {

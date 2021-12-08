@@ -12,7 +12,7 @@ class Image : public Texture {
 public:
     explicit Image(const std::string& filename);
 
-    [[nodiscard]] Color value(double u, double v, const Vec3& p) const override;
+    [[nodiscard]] Color value(const Vec2 &uv, const Vec3 &p) const override;
 
 private:
     cv::Mat m_image;

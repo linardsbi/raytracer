@@ -9,21 +9,16 @@
 
 class Camera {
 public:
-    constexpr Camera(Point3 look_from,
-                     Point3 look_at,
-                     Vec3 vup,
+    constexpr Camera(const Point3 &look_from,
+                     const Point3 &look_at,
+                     const Vec3 &vup,
                      const double vfov, // vertical field-of-view in degrees
                      const double aspect_ratio,
                      const double aperture,
                      const double focus_dist,
-                     const double _time0 = 0.0,
-                     const double _time1 = 0.0)
-            : m_origin(look_from)
-            , w((look_from - look_at).unit_vector())
-            , m_lens_radius(aperture / 2.0)
-            , m_time0(_time0)
-            , m_time1(_time1) {
-        const auto theta = Common::degrees_to_radians(vfov);
+                     const Vec2 &time)
+            : m_origin(look_from), w((look_from - look_at).unit_vector()), m_time(time), m_lens_radius(aperture / 2.0) {
+        const auto theta = CE::degrees_to_radians(vfov);
         const auto h = __builtin_tan(theta / 2.0);
         const auto viewport_height = 2.0 * h;
         const auto viewport_width = aspect_ratio * viewport_height;
@@ -36,14 +31,14 @@ public:
         m_lower_left_corner = m_origin - m_horizontal / 2.0 - m_vertical / 2.0 - focus_dist * w;
     }
 
-    [[nodiscard]] FLATTEN Ray create_ray(double s, double t) const {
+    [[nodiscard]] FLATTEN Ray create_ray(const Vec2 &st) const {
         const auto rd = m_lens_radius * random_in_unit_disk();
         const auto offset = u * rd.x() + v * rd.y();
 
         return {
                 m_origin + offset,
-                m_lower_left_corner + s * m_horizontal + t * m_vertical - m_origin - offset,
-                random<double>(m_time0, m_time1)
+                m_lower_left_corner + st[0] * m_horizontal + st[1] * m_vertical - m_origin - offset,
+                random<double>(m_time.x(), m_time.y())
         };
     }
 
@@ -54,7 +49,6 @@ private:
     Vec3 m_vertical;
 
     Vec3 u, v, w;
+    Vec2 m_time;
     double m_lens_radius;
-    double m_time0;
-    double m_time1;
 };

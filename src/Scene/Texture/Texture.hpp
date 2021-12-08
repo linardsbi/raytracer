@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include "../../Math/Vector.hpp"
+#include "../../Util/Common.hpp"
 
 class Texture {
 public:
-    [[nodiscard]] virtual Color value(double u, double v, const Point3 &p) const = 0;
+    [[nodiscard]] virtual Color value(const Vec2 &uv, const Point3 &p) const = 0;
 };
 
 class SolidColor : public Texture {
@@ -18,7 +18,7 @@ public:
     SolidColor(double red, double green, double blue)
             : SolidColor(Color{red, green, blue}) {}
 
-    [[nodiscard]] Color value(double  /*u*/, double  /*v*/, const Vec3 & /*p*/) const override {
+    [[nodiscard]] Color value(const Vec2 &/*uv*/, const Vec3 & /*p*/) const override {
         return m_color_value;
     }
 

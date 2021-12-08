@@ -9,8 +9,9 @@ set(CMAKE_CXX_STANDARD 23)
 add_compile_options("-Ofast" "-g"
         "-Wall" "-Wextra" "-Wpedantic" "-Wconversion"
         "-fsanitize=address,leak,undefined"
-        "-fsplit-stack" # fixme: RayCaster::cast_ray() can cause a stack overflow, so using dynamic stack size for now
-        "-fconstexpr-ops-limit=100000000" "-fconstexpr-loop-limit=1000000")
+        "-fconstexpr-ops-limit=100000000" "-fconstexpr-loop-limit=1000000"
+        "-DCONSTEXPR_RANDOM" # This makes debug builds run marginally faster
+        )
 
 set(CMAKE_EXE_LINKER_FLAGS "-fsanitize=address,leak,undefined -fno-omit-frame-pointer -flto")
 

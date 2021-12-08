@@ -12,8 +12,8 @@ namespace Util {
         std::lock_guard<std::mutex> guard(m_image_mutex);
 
         const auto flipped_y = static_cast<int>(m_height) - y - 1;
-        const auto normalized = normalize_pixel(to_BGR(pixel));
-        m_image.at<cv::Vec3b>(flipped_y, x) = {normalized[0], normalized[1], normalized[2]};
+        const auto normalized = normalize_pixel(pixel);
+        m_image.at<cv::Vec3b>(flipped_y, x) = {normalized[2], normalized[1], normalized[0]};
     }
 
     ColorB Image::normalize_pixel(const Color &pixel) {

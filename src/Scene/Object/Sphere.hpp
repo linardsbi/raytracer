@@ -9,18 +9,18 @@
 #include "Object.hpp"
 #include "../Material/Material.hpp"
 
-template <ObjectType Type>
+template<ObjectType Type>
 class Sphere : public Object {
 public:
     Sphere() = delete;
-    Sphere(const Point3& center, double r, MaterialPtr_t ptr)
-    : m_center0(center)
-    , m_radius(r)
-    , m_material_ptr(std::move(ptr)) {};
+
+    Sphere(const Point3 &center, double r, MaterialPtr_t ptr)
+            : m_center0(center), m_radius(r), m_material_ptr(std::move(ptr)) {};
 
     Sphere(
             Point3 cen0, Point3 cen1, double _time0, double _time1, double r, MaterialPtr_t m)
-    : m_center0(cen0), m_center1(cen1), m_radius(r), m_time0(_time0), m_time1(_time1), m_material_ptr(std::move(m)) {};
+            : m_center0(cen0), m_center1(cen1), m_radius(r), m_time0(_time0), m_time1(_time1),
+              m_material_ptr(std::move(m)) {};
 
     bool check_hit(
             const Ray &r, double t_min, double t_max, HitRecord &rec) const override {
@@ -54,7 +54,7 @@ public:
         const auto outward_normal = (rec.p - get_center(r)) / m_radius;
         rec.set_face_normal(r, outward_normal);
 
-        std::tie(rec.u, rec.v) = get_sphere_uv(outward_normal);
+        rec.uv = get_sphere_uv(outward_normal);
 
         return true;
     }
@@ -64,7 +64,7 @@ public:
             return {{
                             m_center0 - Vec3{m_radius, m_radius, m_radius},
                             m_center0 + Vec3{m_radius, m_radius, m_radius}
-            }};
+                    }};
         }
 
         const AABoundingBox box0(
@@ -80,16 +80,17 @@ public:
 
     }
 
-    constexpr Point3& center() {
+    constexpr Point3 &center() {
         return m_center0;
     }
 
     [[nodiscard]] constexpr Point3 center(double time) const {
-        return m_center0 + ((time - m_time0) / (m_time1 - m_time0))*(m_center1 - m_center0);
+        return m_center0 + ((time - m_time0) / (m_time1 - m_time0)) * (m_center1 - m_center0);
     }
+
 private:
     Point3 m_center0;
-    Point3 m_center1{};
+    Point3 m_center1;
     double m_radius;
     double m_time0{};
     double m_time1{};
@@ -103,7 +104,7 @@ private:
         return center(ray.time());
     }
 
-    static constexpr std::pair<double, double> get_sphere_uv(const Point3& p) {
+    static constexpr Vec2 get_sphere_uv(const Point3 &p) {
         // p: a given point on the sphere of radius one, centered at the origin.
         // u: returned value [0,1] of angle around the Y axis from X=-1.
         // v: returned value [0,1] of angle from Y=-1 to Y=+1.
@@ -112,9 +113,9 @@ private:
         //     <0 0 1> yields <0.25 0.50>       < 0  0 -1> yields <0.75 0.50>
 
         const auto theta = acos(-p.y());
-        const auto phi = atan2(-p.z(), p.x()) + pi;
+        const auto phi = atan2(-p.z(), p.x()) + std::numbers::pi;
 
-        return {phi / (2*pi), theta / pi};
+        return {phi / (2 * std::numbers::pi), theta / std::numbers::pi};
     }
 };
 

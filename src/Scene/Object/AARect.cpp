@@ -17,8 +17,7 @@ bool AARect<Axes::XY>::check_hit(const Ray &r, double t_min, double t_max, HitRe
         return false;
     }
 
-    rec.u = (x - a0) / (a1 - a0);
-    rec.v = (y - b0) / (b1 - b0);
+    rec.uv = {(x - a0) / (a1 - a0), (y - b0) / (b1 - b0)};
     rec.t = t;
 
     const auto outward_normal = Vec3{0, 0, 1};
@@ -42,8 +41,7 @@ bool AARect<Axes::XZ>::check_hit(const Ray &r, double t_min, double t_max, HitRe
         return false;
     }
 
-    rec.u = (x - a0) / (a1 - a0);
-    rec.v = (z - b0) / (b1 - b0);
+    rec.uv = {(x - a0) / (a1 - a0), (z - b0) / (b1 - b0)};
     rec.t = t;
 
     const auto outward_normal = Vec3{0, 1, 0};
@@ -67,8 +65,8 @@ bool AARect<Axes::YZ>::check_hit(const Ray &r, double t_min, double t_max, HitRe
         return false;
     }
 
-    rec.u = (y - a0) / (a1 - a0);
-    rec.v = (z - b0) / (b1 - b0);
+    rec.uv = {(y - a0) / (a1 - a0), (z - b0) / (b1 - b0)};
+
     rec.t = t;
 
     const auto outward_normal = Vec3{1, 0, 0};

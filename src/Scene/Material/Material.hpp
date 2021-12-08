@@ -6,6 +6,7 @@
 
 #include <optional>
 #include <memory>
+#include <utility>
 #include "../Ray.hpp"
 
 struct ScatterResult {
@@ -38,7 +39,7 @@ public:
             const Ray &r_in, const HitRecord &r
     ) const = 0;
 
-    [[nodiscard]] constexpr virtual Color emitted(double /*u*/, double  /*v*/, const Point3 &  /*p*/) const {
+    [[nodiscard]] constexpr virtual Color emitted(const Vec2 &/*uv*/, const Point3 &  /*p*/) const {
         return {0.0, 0.0, 0.0};
     }
 };

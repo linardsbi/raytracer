@@ -26,11 +26,11 @@ public:
             std::array<unsigned, point_count> p{};
             std::iota(p.begin(), p.end(), 0);
 
-            std::for_each(p.begin(), p.end(), [i = point_count - 1, &p, &rng](auto &num) mutable {
-                const auto target = static_cast<size_t>(rng(0, i));
+            for (auto i = point_count - 1; auto &num: p) {
+                const auto target = static_cast<std::size_t>(rng(0, i));
                 std::swap(num, p[target]);
                 i--;
-            });
+            }
 
             return p;
         };

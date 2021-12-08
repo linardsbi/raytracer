@@ -12,12 +12,12 @@ public:
     Checker(const Color &c1, const Color &c2)
             : odd(std::make_shared<SolidColor>(c2)), even(std::make_shared<SolidColor>(c1)) {}
 
-    [[nodiscard]] Color value(double u, double v, const Point3 &p) const override {
+    [[nodiscard]] Color value(const Vec2 &uv, const Point3 &p) const override {
         const auto sines = sin(10 * p.x()) * sin(10 * p.y()) * sin(10 * p.z());
         if (sines < 0) {
-            return odd->value(u, v, p);
+            return odd->value(uv, p);
         }
-        return even->value(u, v, p);
+        return even->value(uv, p);
     }
 
 private:

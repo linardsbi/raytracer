@@ -25,8 +25,9 @@ public:
             scatter_direction = rec.normal;
         }
 
-        return {Ray{rec.p, scatter_direction, r_in.time()}, albedo->value(rec.u, rec.v, rec.p)};
+        return {Ray{rec.p, scatter_direction, r_in.time()}, albedo->value(rec.uv, rec.p)};
     }
 
+private:
     std::shared_ptr<Texture> albedo;
 };

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../Math/Vector.hpp"
+#include "../Util/Common.hpp"
 
 class Ray {
 public:
@@ -19,7 +19,7 @@ public:
 
     [[nodiscard]] constexpr double time() const { return m_tm; }
 
-    [[nodiscard]] constexpr Point3 at(Point3::value_type t) const {
+    [[nodiscard]] constexpr Vector<double, 3> at(Point3::value_type t) const {
         return m_orig + t * m_dir;
     }
 

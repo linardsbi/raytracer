@@ -1,9 +1,9 @@
 #include <iostream>
 #include <execution>
 #include <opencv2/highgui/highgui.hpp>
+#include <fmt/printf.h>
 
 #include "src/Ray/RayCaster.hpp"
-#include "./src/Util/Common.hpp"
 #include "./src/Scene/Scene.hpp"
 #include "src/Scene/Object/Sphere.hpp"
 #include "src/Scene/Object/AARect.hpp"
@@ -164,8 +164,8 @@ int main() {
     constexpr auto aspect_ratio = 1.0;
     constexpr auto image_width = 600U;
     constexpr auto image_height = static_cast<unsigned>(image_width / aspect_ratio);
-    constexpr auto samples_per_pixel = 200U;
-    constexpr auto max_depth = 25U;
+    constexpr auto samples_per_pixel = 100U;
+    constexpr auto max_depth = 8U;
 
     static constexpr auto index = get_indicies<image_width, image_height>();
 
@@ -179,24 +179,25 @@ int main() {
 //    static const auto world = cornell_box();
     // Camera
 
-//    constexpr Point3 lookfrom{13, 2, 3};
-//    constexpr Point3 lookat{0, 0, 0};
+    constexpr Point3 lookfrom{13, 2, 3};
+    constexpr Point3 lookat{0, 0, 0};
 
-    constexpr Point3 lookfrom{278, 278, -800};
-    constexpr Point3 lookat{278, 278, 0};
+//    constexpr Point3 lookfrom{278, 278, -800};
+//    constexpr Point3 lookat{278, 278, 0};
 
     constexpr Vec3 vup{0, 1, 0};
     constexpr auto dist_to_focus = 10.0;
     constexpr auto aperture = 0.0;
 
-    constexpr Camera cam(lookfrom, lookat, vup, 40.0, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
+    constexpr Camera cam(lookfrom, lookat, vup, 40.0, aspect_ratio, aperture, dist_to_focus, {0.0, 1.0});
 
-    RayCaster rc(cornell_box(), cam, max_depth);
+    RayCaster rc(earth(), cam, max_depth);
 
     // Render
 
     Util::Image img(image_width, image_height, samples_per_pixel);
     const auto start = std::chrono::system_clock::now();
+
     std::transform(std::execution::par_unseq, index.begin(), index.end(), img.cv_image_begin(),
                    [&img, &rc](const auto &i) {
                        Color pixel{0.0, 0.0, 0.0};
@@ -204,22 +205,28 @@ int main() {
                        const auto y = i.second;
 
                        for (auto s = 0U; s < samples_per_pixel; ++s) {
-                           const auto u = (static_cast<double>(x) + random<double>()) / (image_width - 1);
-                           const auto v = (static_cast<double>(y) + random<double>()) / (image_height - 1);
-                           const auto[color, is_hit] = rc.cast_ray(u, v);
+                           const Vec2 uv = {
+                                   (static_cast<double>(x) + random<double>()) / (image_width - 1),
+                                   (static_cast<double>(y) + random<double>()) / (image_height - 1)
+                           };
+
+                           const auto[color, is_hit] = rc.cast(uv);
 
                            if (!is_hit) {
+                               // fixme: doesn't return proper background color
+                               pixel = color;
                                break;
                            }
 
                            pixel += color;
                        }
-                       const auto normalized = img.normalize_pixel(to_BGR(pixel));
-                       return cv::Vec3b{normalized[0], normalized[1], normalized[2]};
+                       const auto normalized = img.normalize_pixel(pixel);
+                       return cv::Vec3b{normalized.B(), normalized.G(), normalized.R()};
                    });
 
     const auto total_time = std::chrono::duration<double>(std::chrono::system_clock::now() - start).count();
-    std::cout << "Finished rendering in " << total_time << "s\n";
+
+    fmt::printf("Finished rendering in %.2f sec\n", total_time);
 
     cv::imshow("Raytraced image", img.cv_image());
     cv::waitKey(0);

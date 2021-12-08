@@ -10,10 +10,9 @@
 struct HitRecord {
     Point3 p;
     Vec3 normal;
+    Vec2 uv;
     MaterialPtr_t material_ptr;
     double t;
-    double u;
-    double v;
     bool front_face;
 
     constexpr inline void set_face_normal(const Ray &r, const Vec3 &outward_normal) {
